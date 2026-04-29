@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Martin Revol-Buisson — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #00ff88; --green-dim: #00cc66;
+    --bg: #050f05; --bg2: #0a1a0a; --bg3: #0d220d;
+    --amber: #ffaa00; --red: #ff4444; --cyan: #00ffcc;
+    --border: #00ff8833;
+  }
+  body { background: var(--bg); color: var(--green); font-family: 'Share Tech Mono', monospace; font-size: 14px; line-height: 1.6; min-height: 100vh; padding: 32px 40px; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.012) 2px, rgba(0,255,136,0.012) 4px); pointer-events: none; z-index: 0; }
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+
+  /* TOPBAR */
+  .topbar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+  .lang-btn, .cv-btn {
+    font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 1px;
+    padding: 6px 14px; border: 1px solid var(--green-dim); background: var(--bg3);
+    color: var(--green); cursor: pointer; transition: all 0.2s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .lang-btn:hover, .cv-btn:hover { border-color: var(--green); background: #0d2a0d; }
+  .lang-btn.active { border-color: var(--cyan); color: var(--cyan); background: #001a1a; }
+  .cv-btn { border-color: var(--amber); color: var(--amber); background: #1a1000; }
+  .cv-btn:hover { background: #2a1800; border-color: #ffcc44; color: #ffcc44; }
+  .lang-sep { color: #336633; font-size: 12px; }
+
+  /* TERM HEADER */
+  .term-header { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .term-dots { display: flex; gap: 7px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: var(--red); } .dot.y { background: var(--amber); } .dot.g { background: var(--green-dim); }
+  .term-title { font-family: 'VT323', monospace; font-size: 20px; color: var(--green-dim); letter-spacing: 3px; }
+  .term-prompt { color: var(--cyan); font-size: 12px; margin-left: auto; }
+  .boot-text { color: #336633; font-size: 12px; margin-bottom: 6px; }
+
+  .section { margin-top: 32px; animation: fadeIn 0.5s ease both; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .section:nth-child(3){animation-delay:.05s} .section:nth-child(4){animation-delay:.1s}
+  .section:nth-child(5){animation-delay:.15s} .section:nth-child(6){animation-delay:.2s}
+  .section:nth-child(7){animation-delay:.25s} .section:nth-child(8){animation-delay:.3s}
+
+  .cmd-line { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .cmd-prefix { color: var(--cyan); font-size: 13px; }
+  .cmd-text { font-family: 'VT323', monospace; font-size: 24px; color: var(--green); letter-spacing: 1px; }
+  .cmd-cursor { display: inline-block; width: 10px; height: 19px; background: var(--green); vertical-align: middle; margin-left: 4px; animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .output-block { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--green-dim); padding: 16px 20px; }
+
+  .whoami-inner { display: flex; gap: 24px; align-items: flex-start; }
+  .portrait-wrap { flex-shrink: 0; }
+  .portrait-wrap img { width: 90px; height: 90px; object-fit: cover; border: 2px solid var(--green-dim); filter: grayscale(30%) contrast(1.1); }
+  @media (max-width: 500px) { .whoami-inner { flex-direction: column; } .portrait-wrap img { width: 70px; height: 70px; } }
+  .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; }
+  .bio-row { display: flex; gap: 10px; font-size: 13px; }
+  .bio-key { color: var(--green-dim); min-width: 110px; }
+  .bio-val { color: #ccffcc; }
+  .highlight { color: var(--amber); font-weight: bold; }
+  /* project page link arrow */
+  .project-arrow { font-size: 11px; color: var(--cyan); margin-top: 4px; opacity: 0; transition: opacity 0.2s; }
+  .project-card:hover .project-arrow { opacity: 1; }
+  .tags-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+  .tag { background: var(--bg3); border: 1px solid var(--green-dim); color: var(--green); font-size: 11px; padding: 3px 12px; letter-spacing: 1px; }
+  .tag.amber { border-color: var(--amber); color: var(--amber); }
+  .tag.cyan { border-color: var(--cyan); color: var(--cyan); }
+  .tag.red { border-color: var(--red); color: var(--red); }
+
+  .xp-list { display: flex; flex-direction: column; }
+  .xp-item { display: grid; grid-template-columns: 3px 1fr; gap: 0 18px; padding-bottom: 22px; }
+  .xp-item:last-child { padding-bottom: 0; }
+  .xp-line { background: var(--border); width: 3px; position: relative; }
+  .xp-line::before { content: ''; position: absolute; top: 5px; left: -4px; width: 11px; height: 11px; border-radius: 50%; background: var(--green-dim); border: 2px solid var(--bg2); }
+  .xp-title { font-size: 14px; color: #aaffaa; font-weight: bold; }
+  .xp-company { font-size: 12px; color: var(--amber); margin-top: 2px; }
+  .xp-date { font-size: 11px; color: #336633; margin-top: 1px; }
+  .xp-desc { font-size: 12px; color: #669966; margin-top: 6px; line-height: 1.5; }
+
+  .projects-list { display: flex; flex-direction: column; gap: 12px; }
+  .project-card { background: var(--bg3); border: 1px solid var(--border); padding: 14px 16px; display: grid; grid-template-columns: 40px 1fr auto; gap: 0 16px; align-items: start; transition: border-color 0.2s; text-decoration: none; }
+  .project-card:hover { border-color: var(--green-dim); }
+  .project-id { font-family: 'VT323', monospace; font-size: 24px; color: var(--cyan); line-height: 1.1; }
+  .project-name { font-size: 14px; color: #aaffaa; font-weight: bold; }
+  .project-desc { font-size: 12px; color: #669966; margin-top: 4px; }
+  .project-tech { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .project-tech span { font-size: 10px; padding: 1px 7px; border: 1px solid #00ff8822; color: #00cc66; background: #0a1a0a; letter-spacing: 0.5px; }
+  .project-status { font-size: 11px; padding: 3px 10px; white-space: nowrap; margin-top: 2px; }
+  .status-wip { background: #332200; color: var(--amber); border: 1px solid var(--amber); }
+  .status-done { background: #002211; color: var(--cyan); border: 1px solid var(--cyan); }
+  .status-nda { background: #220011; color: #ff6699; border: 1px solid #ff4488; }
+  .status-pro { background: #001133; color: #66aaff; border: 1px solid #4488ff; }
+
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .skill-group-label { font-family: 'VT323', monospace; font-size: 18px; color: var(--amber); margin-bottom: 10px; letter-spacing: 1px; }
+  .skill-bar-row { margin-bottom: 9px; }
+  .skill-name { font-size: 12px; color: #aaffaa; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .skill-track { height: 5px; background: var(--bg3); border: 1px solid var(--border); overflow: hidden; }
+  .skill-fill { height: 100%; background: linear-gradient(90deg, var(--green-dim), var(--green)); }
+  .skill-fill.amber { background: linear-gradient(90deg, #cc8800, var(--amber)); }
+  .skill-fill.red { background: linear-gradient(90deg, #aa2200, #ff6644); }
+
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .contact-item { background: var(--bg3); border: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s, background 0.2s; text-decoration: none; cursor: pointer; }
+  .contact-item:hover { border-color: var(--green-dim); background: #0d2a0d; }
+  .contact-icon { color: var(--cyan); font-family: 'VT323', monospace; font-size: 22px; min-width: 28px; }
+  .contact-label { font-size: 11px; color: var(--green-dim); }
+  .contact-val { font-size: 13px; color: #ccffcc; }
+
+  .footer-line { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; font-size: 11px; color: #336633; display: flex; justify-content: space-between; }
+
+  @media (max-width: 680px) {
+    body { padding: 16px; }
+    .bio-grid, .skills-grid, .contact-grid { grid-template-columns: 1fr; }
+    .project-card { grid-template-columns: 36px 1fr; }
+    .project-status { grid-column: 2; }
+    .topbar { flex-wrap: wrap; }
+  }
+
+  /* i18n: hide inactive lang content */
+  [data-lang] { display: none; }
+  .lang-en [data-lang="en"] { display: inline; }
+  .lang-fr [data-lang="fr"] { display: inline; }
+  .lang-en [data-lang-block="en"] { display: block; }
+  .lang-fr [data-lang-block="fr"] { display: block; }
+  /* default show en */
+  body.lang-en [data-lang="en"] { display: inline; }
+  body.lang-fr [data-lang="fr"] { display: inline; }
+</style>
+</head>
+<body class="lang-en">
+<div class="wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <span class="lang-sep">/</span>
+    <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
+    <a class="cv-btn" href="CV_Martin_Revol-Buisson.pdf" download>
+      &#11123; <span data-lang="en">Download CV</span><span data-lang="fr">Télécharger CV</span>
+    </a>
+  </div>
+
+  <!-- TERM HEADER -->
+  <div class="term-header">
+    <div class="term-dots">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    </div>
+    <div class="term-title">PORTFOLIO_OS v2.6.1</div>
+    <div class="term-prompt">martin@dev:~$ _</div>
+  </div>
+
+  <div class="boot-text">[ <span data-lang="en">Initializing profile</span><span data-lang="fr">Initialisation du profil</span> ................ OK ]</div>
+  <div class="boot-text">[ <span data-lang="en">Loading modules: game_dev · mobile · data · freelance</span><span data-lang="fr">Chargement des modules: game_dev · mobile · data · freelance</span> .. OK ]</div>
+  <div class="boot-text">[ <span data-lang="en">Rendering interface</span><span data-lang="fr">Rendu de l'interface</span> .................. OK ]</div>
+
+  <!-- WHOAMI -->
+  <div class="section">
+    <div class="cmd-line">
+      <span class="cmd-prefix">martin@dev:~$</span>
+      <span class="cmd-text">whoami</span>
+      <span class="cmd-cursor"></span>
+    </div>
+    <div class="output-block">
+      <div class="whoami-inner">
+      <div class="portrait-wrap">
+        <img src="assets/portrait.png" alt="Martin Revol-Buisson" />
+      </div>
+      <div style="flex:1">
+      <div class="bio-grid">
+        <div class="bio-row"><span class="bio-key">NAME</span><span class="bio-val highlight">Martin Revol-Buisson</span></div>
+        <div class="bio-row"><span class="bio-key">ROLE</span><span class="bio-val"><span data-lang="en">Game Programmer · Developer</span><span data-lang="fr">Game Programmer · Développeur</span></span></div>
+        <div class="bio-row"><span class="bio-key">AGE</span><span class="bio-val"><span data-lang="en">22 years old</span><span data-lang="fr">22 ans</span></span></div>
+        <div class="bio-row"><span class="bio-key"><span data-lang="en">DEGREE</span><span data-lang="fr">FORMATION</span></span><span class="bio-val"><span data-lang="en">MSc Game Programming — ICAN Paris</span><span data-lang="fr">Mastère Game Programming — ICAN Paris</span></span></div>
+        <div class="bio-row"><span class="bio-key"><span data-lang="en">WORK-STUDY</span><span data-lang="fr">ALTERNANCE</span></span><span class="bio-val">Michelin · Clermont-Ferrand</span></div>
+        <div class="bio-row"><span class="bio-key">STATUS</span><span class="bio-val" style="color:var(--cyan)">[ <span data-lang="en">WORK-STUDY · FREELANCE</span><span data-lang="fr">EN ALTERNANCE · FREELANCE</span> ]</span></div>
+      </div>
+      </div><!-- bio-grid end -->
+      </div><!-- portrait right col end -->
+      </div><!-- whoami-inner end -->
+      <div class="tags-row">
+        <span class="tag">C++</span><span class="tag">UE5</span><span class="tag">Unity</span><span class="tag">C#</span>
+        <span class="tag">Python</span><span class="tag">Golang</span>
+        <span class="tag red">Android / Kotlin</span>
+        <span class="tag amber">Power BI</span><span class="tag amber">DAX</span>
+        <span class="tag cyan">Power Automate</span><span class="tag cyan">PAD</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <div class="section">
+    <div class="cmd-line">
+      <span class="cmd-prefix">martin@dev:~$</span>
+      <span class="cmd-text">cat experience.log</span>
+    </div>
+    <div class="output-block">
+      <div class="xp-list">
+
+        <div class="xp-item">
+          <div class="xp-line"></div>
+          <div>
+            <div class="xp-title"><span data-lang="en">Digital Developer — Work-Study</span><span data-lang="fr">Digital Developer — Alternance</span></div>
+            <div class="xp-company">Michelin · Clermont-Ferrand</div>
+            <div class="xp-date"><span data-lang="en">Since September 2024</span><span data-lang="fr">Depuis septembre 2024</span></div>
+            <div class="xp-desc"><span data-lang="en">VR headset fleet management · Creation of VR capsules on prevention &amp; safety · Project management (digital room) · Power BI data visualizations · Power Automate &amp; PAD</span><span data-lang="fr">Gestion de flotte de casques VR · Création de capsules de réalité virtuelle (prévention &amp; sécurité) · Gestion de projets (salle digitale) · Visualisations de données Power BI · Power Automate &amp; PAD</span></div>
+          </div>
+        </div>
+
+        <div class="xp-item">
+          <div class="xp-line"></div>
+          <div>
+            <div class="xp-title"><span data-lang="en">Mobile Game Developer — Internship</span><span data-lang="fr">Développement Jeux Mobiles — Stage</span></div>
+            <div class="xp-company">Pirouette Cacahouète · Brive-la-Gaillarde</div>
+            <div class="xp-date"><span data-lang="en">June – August 2024</span><span data-lang="fr">Juin – Août 2024</span></div>
+            <div class="xp-desc"><span data-lang="en">Development of a mobile game range to complement the publisher's physical game catalogue</span><span data-lang="fr">Développement d'une gamme de jeux mobiles venant compléter l'offre de jeux physiques de l'éditeur</span></div>
+          </div>
+        </div>
+
+        <div class="xp-item">
+          <div class="xp-line"></div>
+          <div>
+            <div class="xp-title"><span data-lang="en">Freelance — Ongoing Project</span><span data-lang="fr">Freelance — Application en cours</span></div>
+            <div class="xp-company"><span data-lang="en">Confidential (NDA)</span><span data-lang="fr">Confidentiel (NDA)</span></div>
+            <div class="xp-date"><span data-lang="en">Ongoing · 2025</span><span data-lang="fr">En cours · 2025</span></div>
+            <div class="xp-desc"><span data-lang="en">Application under development — details confidential</span><span data-lang="fr">Développement d'une application — détails confidentiels</span></div>
+          </div>
+        </div>
+
+        <div class="xp-item">
+          <div class="xp-line"></div>
+          <div>
+            <div class="xp-title"><span data-lang="en">Co-director &amp; Youth Leader</span><span data-lang="fr">Co-directeur &amp; Animateur</span></div>
+            <div class="xp-company">CCAS France &amp; Corse</div>
+            <div class="xp-date"><span data-lang="en">Since July 2021</span><span data-lang="fr">Depuis juillet 2021</span></div>
+            <div class="xp-desc"><span data-lang="en">Co-direction of summer camps (60 to 100+ youth) · Team coordination · Project management · BAFA 2021</span><span data-lang="fr">Co-direction de colonies de vacances (60 à 100+ jeunes) · Coordination d'équipes · Gestion de projet · BAFA 2021</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section">
+    <div class="cmd-line">
+      <span class="cmd-prefix">martin@dev:~$</span>
+      <span class="cmd-text">ls ./projects</span>
+    </div>
+    <div class="output-block">
+      <div class="projects-list">
+
+        <div class="project-card">
+          <div class="project-id">00</div>
+          <div>
+            <div class="project-name"><span data-lang="en">FREELANCE PROJECT</span><span data-lang="fr">PROJET FREELANCE</span></div>
+            <div class="project-desc"><span data-lang="en">Application under development — confidential details (NDA)</span><span data-lang="fr">Application en développement — détails confidentiels (NDA)</span></div>
+            <div class="project-tech"><span>NDA</span><span><span data-lang="en">Ongoing</span><span data-lang="fr">En cours</span></span></div>
+          </div>
+          <div class="project-status status-nda">NDA</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-id">01</div>
+          <div>
+            <div class="project-name">MYCELAND</div>
+            <div class="project-desc"><span data-lang="en">Puzzle/board game in UE5 C++ — tile system, per-board undo/reset, navmesh, wave propagation subsystem</span><span data-lang="fr">Puzzle/board game en UE5 C++ — système de tuiles, undo/reset per-board, navmesh, wave propagation subsystem</span></div>
+            <div class="project-tech"><span>UE5</span><span>C++</span><span>Gameplay Systems</span></div>
+          </div>
+          <div class="project-status status-wip">WIP</div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-id">02</div>
+          <div>
+            <div class="project-name">VR MICHELIN</div>
+            <div class="project-desc"><span data-lang="en">VR capsules on prevention &amp; safety · VR headset fleet management · Power BI dashboard</span><span data-lang="fr">Capsules de réalité virtuelle sur la prévention et la sécurité · Gestion de flotte de casques VR · Dashboard Power BI</span></div>
+            <div class="project-tech"><span>VR</span><span>Power BI</span><span>Power Automate</span></div>
+          </div>
+          <div class="project-status status-pro">PRO</div>
+        </div>
+
+        <a class="project-card" href="onryo.html">
+          <div class="project-id">03</div>
+          <div>
+            <div class="project-name">ONRYŌ</div>
+            <div class="project-desc"><span data-lang="en">Fast Arena Shooter — FPS set in feudal Japan, playing as a vengeful spirit capable of possessing enemies. Enemy AI behavior systems, dual control source architecture</span><span data-lang="fr">Fast Arena Shooter — FPS Japon féodal, esprit vengeur qui possède ses ennemis. Systèmes de comportement IA, architecture dual controller</span></div>
+            <div class="project-tech"><span>UE5</span><span>C++</span><span>FPS</span><span>AI</span></div>
+            <div class="project-arrow">→ view full page</div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+        <a class="project-card" href="gollumgo.html">
+          <div class="project-id">04</div>
+          <div>
+            <div class="project-name">GOLLUMGO</div>
+            <div class="project-desc"><span data-lang="en">Tactical puzzle/board game — play as Gollum in the Dead Marshes. Custom BFS pathfinding, multi-AI placement system, grid data structures</span><span data-lang="fr">Tactical puzzle/board game — Gollum dans les Marais des Morts. Pathfinding BFS custom, placement multi-IA, structures de données de grille</span></div>
+            <div class="project-tech"><span>UE5</span><span>Blueprints</span><span>BFS AI</span><span>Puzzle</span></div>
+            <div class="project-arrow">→ view full page</div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+        <a class="project-card" href="wendogo.html">
+          <div class="project-id">05</div>
+          <div>
+            <div class="project-name">WENDOGO</div>
+            <div class="project-desc"><span data-lang="en">Multiplayer mobile social deduction card game — full networking architecture, server class foundation, card mechanics hierarchy</span><span data-lang="fr">Jeu de cartes mobile social deduction multijoueur — architecture réseau complète, classe serveur, hiérarchie des mécaniques de cartes</span></div>
+            <div class="project-tech"><span>Unity 6</span><span>C#</span><span>Netcode</span><span>Android</span></div>
+            <div class="project-arrow">→ view full page</div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+        <a class="project-card" href="https://github.com/MartinREVOL/AlternativeController" target="_blank">
+          <div class="project-id">06</div>
+          <div>
+            <div class="project-name">ALTERNATIVE CONTROLLER</div>
+            <div class="project-desc"><span data-lang="en">UE5 Niagara visual experience with a custom physical controller — player blows into a balloon to move forward, turns a wheel to steer. Particle sphere absorbs neon light colours</span><span data-lang="fr">Expérience visuelle UE5 Niagara avec controller physique custom — souffler dans un ballon pour avancer, tourner un volant pour diriger. Sphère de particules absorbe les couleurs des néons</span></div>
+            <div class="project-tech"><span>UE5</span><span>Niagara</span><span>Hardware</span><span>Particles</span></div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+        <a class="project-card" href="https://github.com/MartinREVOL/Particle-system" target="_blank">
+          <div class="project-id">07</div>
+          <div>
+            <div class="project-name">PARTICLE SYSTEM</div>
+            <div class="project-desc"><span data-lang="en">Custom particle system built in C++ with Unreal Engine 5</span><span data-lang="fr">Système de particules custom développé en C++ sous Unreal Engine 5</span></div>
+            <div class="project-tech"><span>UE5</span><span>C++</span><span>Particles</span></div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+        <a class="project-card" href="https://github.com/MartinREVOL/DownTheForest" target="_blank">
+          <div class="project-id">08</div>
+          <div>
+            <div class="project-name">DOWN THE FOREST</div>
+            <div class="project-desc"><span data-lang="en">Procedural generation test game — terrain and content generation algorithms</span><span data-lang="fr">Mini-jeu de génération procédurale — algorithmes de génération de terrain et de contenu</span></div>
+            <div class="project-tech"><span>Python</span><span>Procedural Gen</span></div>
+          </div>
+          <div class="project-status status-done">DONE</div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="section">
+    <div class="cmd-line">
+      <span class="cmd-prefix">martin@dev:~$</span>
+      <span class="cmd-text">cat skills.cfg</span>
+    </div>
+    <div class="output-block">
+      <div class="skills-grid">
+        <div>
+          <div class="skill-group-label">// GAME DEV</div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Unreal Engine 5</span><span>90%</span></div><div class="skill-track"><div class="skill-fill" style="width:90%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>C++</span><span>85%</span></div><div class="skill-track"><div class="skill-fill" style="width:85%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Unity / C#</span><span>75%</span></div><div class="skill-track"><div class="skill-fill" style="width:75%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Game Systems Design</span><span>85%</span></div><div class="skill-track"><div class="skill-fill" style="width:85%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>VR Development</span><span>70%</span></div><div class="skill-track"><div class="skill-fill" style="width:70%"></div></div></div>
+        </div>
+        <div>
+          <div class="skill-group-label">// MOBILE &amp; DEV</div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Android / Kotlin</span><span>70%</span></div><div class="skill-track"><div class="skill-fill red" style="width:70%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Java</span><span>65%</span></div><div class="skill-track"><div class="skill-fill red" style="width:65%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Python</span><span>75%</span></div><div class="skill-track"><div class="skill-fill red" style="width:75%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Golang</span><span>60%</span></div><div class="skill-track"><div class="skill-fill red" style="width:60%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>HTML / CSS / JS</span><span>65%</span></div><div class="skill-track"><div class="skill-fill red" style="width:65%"></div></div></div>
+        </div>
+        <div>
+          <div class="skill-group-label">// DATA &amp; TOOLS</div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Power BI / DAX</span><span>80%</span></div><div class="skill-track"><div class="skill-fill amber" style="width:80%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Power Automate</span><span>75%</span></div><div class="skill-track"><div class="skill-fill amber" style="width:75%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>PAD (Desktop)</span><span>70%</span></div><div class="skill-track"><div class="skill-fill amber" style="width:70%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>SQL / Firebase</span><span>65%</span></div><div class="skill-track"><div class="skill-fill amber" style="width:65%"></div></div></div>
+          <div class="skill-bar-row"><div class="skill-name"><span>Visual Studio</span><span>85%</span></div><div class="skill-track"><div class="skill-fill amber" style="width:85%"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="section">
+    <div class="cmd-line">
+      <span class="cmd-prefix">martin@dev:~$</span>
+      <span class="cmd-text">cat contact.json</span>
+    </div>
+    <div class="output-block">
+      <div class="contact-grid">
+        <a class="contact-item" href="mailto:martin.revolbuisson@gmail.com">
+          <div class="contact-icon">@</div>
+          <div><div class="contact-label">EMAIL</div><div class="contact-val">martin.revolbuisson@gmail.com</div></div>
+        </a>
+        <a class="contact-item" href="https://www.linkedin.com/in/martin-revol-buisson/" target="_blank">
+          <div class="contact-icon">in</div>
+          <div><div class="contact-label">LINKEDIN</div><div class="contact-val">martin-revol-buisson</div></div>
+        </a>
+        <a class="contact-item" href="https://github.com/MartinREVOL" target="_blank">
+          <div class="contact-icon">&lt;/&gt;</div>
+          <div><div class="contact-label">GITHUB</div><div class="contact-val">github.com/MartinREVOL</div></div>
+        </a>
+        <div class="contact-item">
+          <div class="contact-icon">tel</div>
+          <div><div class="contact-label"><span data-lang="en">PHONE</span><span data-lang="fr">TÉLÉPHONE</span></div><div class="contact-val">06 50 33 45 30</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-line">
+    <span>PORTFOLIO_OS — Martin Revol-Buisson © 2026</span>
+    <span>14 repos · <span data-lang="en">Session active</span><span data-lang="fr">Session active</span> | Uptime: ∞</span>
+  </div>
+
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.className = 'lang-' + lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+  document.documentElement.lang = lang;
+}
+// init
+setLang('en');
+</script>
+</body>
+</html>
